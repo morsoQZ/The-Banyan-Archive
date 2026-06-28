@@ -1,0 +1,246 @@
+:root {
+  --page: #1c1c21;
+  --text: whitesmoke;
+  --bar-color: rgba(255, 255, 255, 0.2);
+  --line: rgba(255, 255, 255, 0.08);
+  --muted: #6e6e73;
+  --radius-sm: 14px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --sidebar-width: 285px;
+
+  color: var(--text);
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "Segoe UI",
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: #1c1c21;
+  color: whitesmoke;
+
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  height: 100vh;
+  min-height: 0;
+  padding: 24px;
+  gap: 24px;
+  overflow: hidden;
+}
+
+.sidebar {
+  display: flex;
+  height: calc(100vh - 48px);
+  min-height: 0;
+  flex-direction: column;
+  gap: 28px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bar-color) transparent;
+}
+
+.webtitle span {
+  display: block;
+}
+
+.webtitle {
+  display: grid;
+  gap: 1px;
+  padding: 4px 8px 0;
+  color: var(--text);
+  font-size: clamp(34px, 4vw, 52px);
+  font-weight: 720;
+  line-height: 0.88;
+
+  font-family: "Arial Black";
+}
+
+.nav-shell {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex: 0 0 auto;
+  flex-direction: column;
+  padding: 14px;
+  border: 1px double var(--line);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    #ffffff14 0%,
+    #ffffff10 8%,
+    #ffffff08 16%,
+    #ffffff05 22%,
+    #ffffff02 27%,
+    transparent 30%,
+    transparent 100%
+  );
+  box-shadow:
+    inset 1px 2px 6px -4px rgba(255, 255, 255, 0.7),
+    inset -1px -1px 5px -4px rgba(255, 255, 255, 0.7),
+    inset 5px 7px 4px -6px rgba(255, 255, 255, 0.2),
+    inset -5px -7px 4px -8px rgba(255, 255, 255, 0.2),
+    inset -6px 8px 4px -5px rgba(0, 0, 0, 0.3),
+    inset -2px -2px 7px -1px rgba(0, 0, 0, 0.5),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.nav {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  padding: 2px;
+}
+
+.nav-item {
+  position: relative;
+
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  width: 100%;
+  padding: 0 14px;
+  text-decoration: none;
+  box-sizing: border-box;
+
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: left;
+
+  transition:
+    color 220ms ease-out,
+    transform 369ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+  filter: blur(12px);
+  opacity: 0;
+  transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-item.is-active::before {
+  opacity: 1;
+}
+
+.nav-item:hover {
+  color: var(--text);
+  transform: scale(1.03);
+  transform-origin: center;
+}
+
+.nav-item.is-active {
+  color: var(--text);
+}
+
+.nav-item:active {
+  transform: scale(0.98);
+}
+
+.nav-item svg {
+  width: 20px;
+  height: 20px;
+}
+
+.nav-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 560;
+  letter-spacing: 0;
+}
+
+.nav-item:hover span {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.nav-item:hover svg {
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6))
+    drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
+}
+
+.page {
+  display: none;
+}
+
+.page.is-active {
+  display: block;
+}
+
+.main {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.page-loader {
+  display: grid;
+  min-height: 220px;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  color: var(--muted);
+}
+
+.page-loader span {
+  width: 44px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.55);
+  animation: loader-pulse 900ms ease-in-out infinite;
+}
+
+.page-loader span:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.page-loader span:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+.page-loader p {
+  margin: 8px 0 0;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+@keyframes loader-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scaleX(0.5);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleX(1.15);
+  }
+}
