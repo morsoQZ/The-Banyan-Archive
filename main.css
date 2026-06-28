@@ -79,7 +79,7 @@ body {
   position: relative;
   display: flex;
   min-height: 0;
-  flex: 0 0 auto;
+  flex: 1 0 auto;
   flex-direction: column;
   padding: 14px;
   border: 1px double var(--line);
