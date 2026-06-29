@@ -1,0 +1,287 @@
+<div class="about-scroll">
+  <header class="about-hero">
+    <h1>文章置信度说明</h1>
+  </header>
+
+  <article class="about-article">
+    <p>
+      文章置信度用于表示一篇文章的“可核验程度”，取值范围为
+      <code>0% ~ 100%</code>。
+    </p>
+    <p>
+      置信度不代表最终事实认定，只表示本站根据来源、时间、投稿身份、文章类型与存疑标注，对文章可靠程度作出的估计。
+    </p>
+    <hr />
+    <h2>变量说明</h2>
+    <h3>- 存疑标注</h3>
+    <ul>
+      <li><code>yu</code>：黄色下划线内容占全文比例，表示“存疑”</li>
+      <li><code>ru</code>：红色下划线内容占全文比例，表示“极度存疑”</li>
+    </ul>
+    <p>例如：黄色下划线占全文 <code>8%</code>，则 <code>yu = 0.08</code>。</p>
+    <h3>- 时间精度</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>标记</th>
+          <th>含义</th>
+          <th>分值</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>d</code></td>
+          <td>精确到日</td>
+          <td><code>1.00</code></td>
+        </tr>
+        <tr>
+          <td><code>m</code></td>
+          <td>精确到月</td>
+          <td><code>0.78</code></td>
+        </tr>
+        <tr>
+          <td><code>y</code></td>
+          <td>精确到年</td>
+          <td><code>0.55</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>- 文章类型</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>标记</th>
+          <th>含义</th>
+          <th>分值</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>rec</code></td>
+          <td>公共事件记录</td>
+          <td><code>1.00</code></td>
+        </tr>
+        <tr>
+          <td><code>exp</code></td>
+          <td>个人或小团体经历</td>
+          <td><code>0.75</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>- 文章依据</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>标记</th>
+          <th>含义</th>
+          <th>分值</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>prov</code></td>
+          <td>可被证实</td>
+          <td><code>1.00</code></td>
+        </tr>
+        <tr>
+          <td><code>mem</code></td>
+          <td>根据学生回忆写出</td>
+          <td><code>0.60</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>- 投稿身份</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>标记</th>
+          <th>含义</th>
+          <th>分值</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>aut</code></td>
+          <td>实名投稿</td>
+          <td><code>1.00</code></td>
+        </tr>
+        <tr>
+          <td><code>ali</code></td>
+          <td>化名投稿</td>
+          <td><code>0.82</code></td>
+        </tr>
+        <tr>
+          <td><code>ano</code></td>
+          <td>匿名投稿</td>
+          <td><code>0.55</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <h2>计算公式</h2>
+    <p>基础可信度：</p>
+    <div class="math-block">
+      <math display="block">
+        <mrow>
+          <mi>B</mi>
+          <mo>=</mo>
+          <mn>0.40</mn>
+          <mi>S</mi>
+          <mo>+</mo>
+          <mn>0.20</mn>
+          <mi>A</mi>
+          <mo>+</mo>
+          <mn>0.25</mn>
+          <mi>T</mi>
+          <mo>+</mo>
+          <mn>0.15</mn>
+          <mi>K</mi>
+        </mrow>
+      </math>
+    </div>
+    <p>其中：</p>
+    <ul>
+      <li><code>S</code>：文章依据分值</li>
+      <li><code>A</code>：投稿身份分值</li>
+      <li><code>T</code>：时间精度分值</li>
+      <li><code>K</code>：文章类型分值</li>
+    </ul>
+    <p>存疑惩罚系数：</p>
+    <div class="math-block">
+      <math display="block">
+        <mrow>
+          <mi>U</mi>
+          <mo>=</mo>
+          <mn>1</mn>
+          <mo>-</mo>
+          <mn>0.8</mn>
+          <mi>yu</mi>
+          <mo>-</mo>
+          <mn>1.8</mn>
+          <mi>ru</mi>
+        </mrow>
+      </math>
+    </div>
+    <p>最终置信度：</p>
+    <div class="math-block">
+      <math display="block">
+        <mrow>
+          <mi>C</mi>
+          <mo>=</mo>
+          <mn>100</mn>
+          <mo>&#x00D7;</mo>
+          <mi>B</mi>
+          <mo>&#x00D7;</mo>
+          <mi>U</mi>
+        </mrow>
+      </math>
+    </div>
+    <p>最终结果限制在 <code>0% ~ 100%</code> 之间。</p>
+    <hr />
+    <h2>分级标准</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>分数</th>
+          <th>等级</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>90% ~ 100%</code></td>
+          <td>高置信</td>
+        </tr>
+        <tr>
+          <td><code>75% ~ 89%</code></td>
+          <td>较高置信</td>
+        </tr>
+        <tr>
+          <td><code>60% ~ 74%</code></td>
+          <td>中等置信</td>
+        </tr>
+        <tr>
+          <td><code>40% ~ 59%</code></td>
+          <td>待核实</td>
+        </tr>
+        <tr>
+          <td><code>0% ~ 39%</code></td>
+          <td>低置信</td>
+        </tr>
+      </tbody>
+    </table>
+    <hr />
+    <h2>示例</h2>
+    <p>一篇文章：</p>
+    <ul>
+      <li><code>rec</code>：公共事件记录</li>
+      <li><code>prov</code>：可被证实</li>
+      <li><code>ali</code>：化名投稿</li>
+      <li><code>m</code>：精确到月</li>
+      <li><code>yu = 0.08</code></li>
+      <li><code>ru = 0.02</code></li>
+    </ul>
+    <p>计算：</p>
+    <div class="math-block">
+      <math display="block">
+        <mrow>
+          <mi>B</mi>
+          <mo>=</mo>
+          <mn>0.40</mn>
+          <mo>&#x00D7;</mo>
+          <mn>1.00</mn>
+          <mo>+</mo>
+          <mn>0.20</mn>
+          <mo>&#x00D7;</mo>
+          <mn>0.82</mn>
+          <mo>+</mo>
+          <mn>0.25</mn>
+          <mo>&#x00D7;</mo>
+          <mn>0.78</mn>
+          <mo>+</mo>
+          <mn>0.15</mn>
+          <mo>&#x00D7;</mo>
+          <mn>1.00</mn>
+          <mo>=</mo>
+          <mn>0.909</mn>
+        </mrow>
+      </math>
+    </div>
+    <div class="math-block">
+      <math display="block">
+        <mrow>
+          <mi>U</mi>
+          <mo>=</mo>
+          <mn>1</mn>
+          <mo>-</mo>
+          <mn>0.8</mn>
+          <mo>&#x00D7;</mo>
+          <mn>0.08</mn>
+          <mo>-</mo>
+          <mn>1.8</mn>
+          <mo>&#x00D7;</mo>
+          <mn>0.02</mn>
+          <mo>=</mo>
+          <mn>0.90</mn>
+        </mrow>
+      </math>
+    </div>
+    <div class="math-block">
+      <math display="block">
+        <mrow>
+          <mi>C</mi>
+          <mo>=</mo>
+          <mn>100</mn>
+          <mo>&#x00D7;</mo>
+          <mn>0.909</mn>
+          <mo>&#x00D7;</mo>
+          <mn>0.90</mn>
+          <mo>=</mo>
+          <mn>81.81</mn>
+          <mo>%</mo>
+        </mrow>
+      </math>
+    </div>
+    <p>最终显示：</p>
+    <p><code>文章置信度：82%｜较高置信</code></p>
+  </article>
+</div>

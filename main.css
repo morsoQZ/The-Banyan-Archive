@@ -1,6 +1,7 @@
 :root {
   --page: #1c1c21;
   --text: whitesmoke;
+  --link-color: rgb(142, 163, 255);
   --bar-color: rgba(255, 255, 255, 0.2);
   --line: rgba(255, 255, 255, 0.08);
   --muted: #6e6e73;
@@ -35,6 +36,19 @@ body {
   height: 100%;
   margin: 0;
   overflow: hidden;
+}
+
+a {
+  color: var(--link-color);
+  font-weight: 700;
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family:
+    Consolas, "Cascadia Mono", "Cascadia Code", "Courier New", monospace;
 }
 
 .app {
@@ -187,10 +201,59 @@ body {
     drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
 }
 
+/* --------- */
 /* 右侧内容块 */
+/* --------- */
+.main-shell {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
 .main {
+  height: 100%;
   min-height: 0;
   overflow-y: auto;
+
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* old Edge / IE */
+}
+
+.main::-webkit-scrollbar {
+  display: none; /* Chrome / Edge / Safari */
+}
+
+/* 浮动标题 */
+.floating-title {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 10;
+
+  width: fit-content;
+  max-width: 80%;
+  padding: 12px 18px;
+
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+
+  opacity: 0;
+  transform: translate(-50%, -8px);
+  pointer-events: none;
+
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.floating-title.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 .page {
@@ -213,11 +276,20 @@ body {
   animation: reveal-rise 500ms cubic-bezier(0.19, 0.92, 0.48, 0.99) forwards;
 }
 
-.about-scroll h1.reveal-block,
-.about-scroll h2.reveal-block,
-.about-scroll h3.reveal-block {
+.about-scroll h1.reveal-block {
   width: fit-content;
   max-width: 100%;
+}
+
+.math-block {
+  margin: 18px 0;
+  overflow-x: auto;
+  color: var(--text);
+}
+
+.math-block math {
+  min-width: max-content;
+  font-size: 1.08rem;
 }
 
 @keyframes reveal-rise {

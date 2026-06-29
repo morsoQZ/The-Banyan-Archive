@@ -1,5 +1,12 @@
 const navItems = document.querySelectorAll(".nav-item");
 const pages = document.querySelectorAll(".page");
+const main = document.querySelector(".main");
+const floatingTitle = document.querySelector(".floating-title");
+
+let floatingTitleFrame = 0;
+let articleIndexPromise = null;
+
+const articleIndexSrc = "/articles/articles.json";
 
 const sectionPaths = {
   overview: "/",
@@ -31,12 +38,165 @@ function getSectionFromPath() {
   return pathSections[path] || "overview";
 }
 
+function getArticleSlugFromPath() {
+  const path = normalizePath(window.location.pathname);
+  const match = path.match(/^\/articles\/([^/]+)\/$/);
+
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
+function getRouteFromPath() {
+  const articleSlug = getArticleSlugFromPath();
+
+  if (articleSlug) {
+    return {
+      sectionId: "article",
+      articleSlug,
+    };
+  }
+
+  return {
+    sectionId: getSectionFromPath(),
+    articleSlug: "",
+  };
+}
+
 function revealTextBlocks(container) {
-  const blocks = container.querySelectorAll("h1, h2, h3, p, li");
+  const blocks = container.querySelectorAll(
+    "h1, h2, h3, h4, h5, h6, p, li, hr, table, math, .math, .katex, .MathJax",
+  );
+  const mainRect = main?.getBoundingClientRect();
+  const visibleBlocks = mainRect
+    ? [...blocks].filter((block) => block.getBoundingClientRect().top < mainRect.bottom)
+    : [];
+  const visibleCount = Math.max(visibleBlocks.length, 1);
+  const delayStep = visibleCount > 1 ? 250 / (visibleCount - 1) : 0;
 
   blocks.forEach((block, index) => {
     block.classList.add("reveal-block");
-    block.style.animationDelay = `${index * 20}ms`;
+    block.style.animationDelay = `${Math.round(index * delayStep)}ms`;
+  });
+}
+
+function showLoadingState(page) {
+  page.setAttribute("aria-busy", "true");
+  page.innerHTML = `
+    <div class="page-loader" role="status" aria-live="polite">
+      <span></span>
+      <span></span>
+      <span></span>
+      <p>正在加载</p>
+    </div>
+  `;
+}
+
+async function fetchHtmlFragment(src) {
+  const contentPath = src.startsWith("/") ? src : `/${src}`;
+  const response = await fetch(contentPath);
+
+  if (!response.ok) {
+    throw new Error(`Failed to load ${contentPath}`);
+  }
+
+  const html = await response.text();
+
+  if (html.includes("<!doctype html") || html.includes('<div class="app">')) {
+    throw new Error(`${contentPath} returned the full app shell instead of article content`);
+  }
+
+  return html;
+}
+
+async function loadArticleIndex() {
+  if (!articleIndexPromise) {
+    articleIndexPromise = fetch(articleIndexSrc).then((response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to load ${articleIndexSrc}`);
+      }
+
+      return response.json();
+    });
+  }
+
+  return articleIndexPromise;
+}
+
+async function loadArticleContent(slug) {
+  const articlePage = document.getElementById("article");
+
+  if (!articlePage) return;
+
+  if (articlePage.dataset.articleSlug === slug && articlePage.dataset.loaded === "true") {
+    return;
+  }
+
+  showLoadingState(articlePage);
+
+  try {
+    const articleIndex = await loadArticleIndex();
+    const article = articleIndex.find((item) => item.slug === slug);
+
+    if (!article) {
+      throw new Error(`Article not found: ${slug}`);
+    }
+
+    const html = await fetchHtmlFragment(article.src);
+
+    articlePage.innerHTML = html;
+    articlePage.dataset.articleSlug = slug;
+    articlePage.dataset.loaded = "true";
+    revealTextBlocks(articlePage);
+    scheduleFloatingTitleUpdate();
+  } catch (error) {
+    articlePage.innerHTML = "<p>文章加载失败，请稍后再试。</p>";
+    articlePage.dataset.loaded = "false";
+    console.error(error);
+  } finally {
+    articlePage.removeAttribute("aria-busy");
+  }
+}
+
+function getActivePage() {
+  return document.querySelector(".page.is-active");
+}
+
+function setFloatingTitle(title) {
+  if (!floatingTitle) return;
+
+  if (title) {
+    floatingTitle.textContent = title;
+    floatingTitle.classList.add("is-visible");
+    floatingTitle.setAttribute("aria-hidden", "false");
+  } else {
+    floatingTitle.classList.remove("is-visible");
+    floatingTitle.setAttribute("aria-hidden", "true");
+  }
+}
+
+function updateFloatingTitle() {
+  if (!main || !floatingTitle) return;
+
+  const activePage = getActivePage();
+  const heading = activePage?.querySelector("h1");
+
+  if (!heading) {
+    setFloatingTitle("");
+    return;
+  }
+
+  const mainRect = main.getBoundingClientRect();
+  const headingRect = heading.getBoundingClientRect();
+  const headingHasLeftMain = headingRect.bottom <= mainRect.top;
+
+  setFloatingTitle(headingHasLeftMain ? heading.textContent.trim() : "");
+}
+
+function scheduleFloatingTitleUpdate() {
+  if (floatingTitleFrame) return;
+
+  floatingTitleFrame = requestAnimationFrame(() => {
+    floatingTitleFrame = 0;
+    updateFloatingTitle();
   });
 }
 
@@ -49,33 +209,15 @@ async function loadPageContent(page) {
   // 如果已经加载过了，就不重复加载
   if (page.dataset.loaded === "true") return;
 
-  page.setAttribute("aria-busy", "true");
-  page.innerHTML = `
-    <div class="page-loader" role="status" aria-live="polite">
-      <span></span>
-      <span></span>
-      <span></span>
-      <p>正在加载</p>
-    </div>
-  `;
+  showLoadingState(page);
 
   try {
-    const contentPath = src.startsWith("/") ? src : `/${src}`;
-    const response = await fetch(contentPath);
-
-    if (!response.ok) {
-      throw new Error(`Failed to load ${contentPath}`);
-    }
-
-    const html = await response.text();
-
-    if (html.includes("<!doctype html") || html.includes('<div class="app">')) {
-      throw new Error(`${contentPath} returned the full app shell instead of article content`);
-    }
+    const html = await fetchHtmlFragment(src);
 
     page.innerHTML = html;
     revealTextBlocks(page);
     page.dataset.loaded = "true";
+    scheduleFloatingTitleUpdate();
   } catch (error) {
     page.innerHTML = "<p>内容加载失败，请稍后再试。</p>";
     console.error(error);
@@ -106,6 +248,7 @@ function showSection(sectionId, shouldUpdateUrl = false) {
   });
 
   loadPageContent(activePage);
+  scheduleFloatingTitleUpdate();
 
   if (shouldUpdateUrl) {
     const nextPath = sectionPaths[sectionId] || "/";
@@ -118,12 +261,38 @@ function showSection(sectionId, shouldUpdateUrl = false) {
   return true;
 }
 
-function initializeRoute() {
-  const initialSection = getSectionFromPath();
-  const didShowSection = showSection(initialSection);
+function showRoute(route, shouldUpdateUrl = false) {
+  const didShowSection = showSection(route.sectionId, false);
 
-  if (didShowSection) {
-    history.replaceState({ sectionId: initialSection }, "", window.location.pathname);
+  if (!didShowSection) return false;
+
+  if (route.articleSlug) {
+    loadArticleContent(route.articleSlug);
+  }
+
+  if (shouldUpdateUrl) {
+    const nextPath = route.articleSlug
+      ? `/articles/${encodeURIComponent(route.articleSlug)}/`
+      : sectionPaths[route.sectionId] || "/";
+
+    if (window.location.pathname !== nextPath) {
+      history.pushState(route, "", nextPath);
+    }
+  }
+
+  return true;
+}
+
+function showCurrentRoute() {
+  return showRoute(getRouteFromPath());
+}
+
+function initializeRoute() {
+  const initialRoute = getRouteFromPath();
+  const didShowRoute = showRoute(initialRoute);
+
+  if (didShowRoute) {
+    history.replaceState(initialRoute, "", window.location.pathname);
   }
 }
 
@@ -141,5 +310,18 @@ navItems.forEach((item) => {
 });
 
 window.addEventListener("popstate", () => {
-  showSection(getSectionFromPath());
+  showCurrentRoute();
 });
+
+main?.addEventListener("click", (event) => {
+  const link = event.target.closest("a");
+
+  if (!link || link.origin !== window.location.origin) return;
+
+  event.preventDefault();
+  history.pushState({}, "", link.href);
+  showCurrentRoute();
+});
+
+main?.addEventListener("scroll", scheduleFloatingTitleUpdate, { passive: true });
+window.addEventListener("resize", scheduleFloatingTitleUpdate);
