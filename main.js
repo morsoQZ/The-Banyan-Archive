@@ -70,7 +70,7 @@ function revealTextBlocks(container) {
     ? [...blocks].filter((block) => block.getBoundingClientRect().top < mainRect.bottom)
     : [];
   const visibleCount = Math.max(visibleBlocks.length, 1);
-  const delayStep = visibleCount > 1 ? 250 / (visibleCount - 1) : 0;
+  const delayStep = visibleCount > 1 ? 200 / (visibleCount - 1) : 0;
 
   blocks.forEach((block, index) => {
     block.classList.add("reveal-block");

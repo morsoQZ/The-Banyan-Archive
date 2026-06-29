@@ -271,7 +271,7 @@ samp {
 /* 文字浮现 */
 .reveal-block {
   opacity: 0;
-  transform: translate3d(0, 40px, 0) scale(0.98);
+  transform: translate3d(0, 90px, 0) scale(0.98);
   filter: blur(6px);
   animation: reveal-rise 500ms cubic-bezier(0.19, 0.92, 0.48, 0.99) forwards;
 }
