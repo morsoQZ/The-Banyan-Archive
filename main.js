@@ -77,7 +77,7 @@ async function loadPageContent(page) {
 function showSection(sectionId, shouldUpdateUrl = false) {
   const activePage = document.getElementById(sectionId);
 
-  if (!activePage) return;
+  if (!activePage) return false;
 
   navItems.forEach((navItem) => {
     const isActive = navItem.dataset.section === sectionId;
@@ -104,7 +104,20 @@ function showSection(sectionId, shouldUpdateUrl = false) {
       history.pushState({ sectionId }, "", nextPath);
     }
   }
+
+  return true;
 }
+
+function initializeRoute() {
+  const initialSection = getSectionFromPath();
+  const didShowSection = showSection(initialSection);
+
+  if (didShowSection) {
+    history.replaceState({ sectionId: initialSection }, "", window.location.pathname);
+  }
+}
+
+initializeRoute();
 
 navItems.forEach((item) => {
   item.addEventListener("click", (event) => {
@@ -120,5 +133,3 @@ navItems.forEach((item) => {
 window.addEventListener("popstate", () => {
   showSection(getSectionFromPath());
 });
-
-showSection(getSectionFromPath());
