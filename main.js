@@ -31,6 +31,15 @@ function getSectionFromPath() {
   return pathSections[path] || "overview";
 }
 
+function revealTextBlocks(container) {
+  const blocks = container.querySelectorAll("h1, h2, h3, p, li");
+
+  blocks.forEach((block, index) => {
+    block.classList.add("reveal-block");
+    block.style.animationDelay = `${index * 20}ms`;
+  });
+}
+
 async function loadPageContent(page) {
   const src = page.dataset.pageSrc;
 
@@ -65,6 +74,7 @@ async function loadPageContent(page) {
     }
 
     page.innerHTML = html;
+    revealTextBlocks(page);
     page.dataset.loaded = "true";
   } catch (error) {
     page.innerHTML = "<p>内容加载失败，请稍后再试。</p>";
