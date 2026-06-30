@@ -2,6 +2,7 @@ const navItems = document.querySelectorAll(".nav-item");
 const pages = document.querySelectorAll(".page");
 const main = document.querySelector(".main");
 const floatingTitle = document.querySelector(".floating-title");
+const routeBack = document.querySelector(".go-back");
 
 let floatingTitleFrame = 0;
 let articleIndexPromise = null;
@@ -247,6 +248,10 @@ function showSection(sectionId, shouldUpdateUrl = false) {
     page.classList.toggle("is-active", page.id === sectionId);
   });
 
+  if (routeBack) {
+    routeBack.classList.toggle("is-visible", sectionId === "article");
+  }
+
   loadPageContent(activePage);
   scheduleFloatingTitleUpdate();
 
@@ -287,6 +292,17 @@ function showCurrentRoute() {
   return showRoute(getRouteFromPath());
 }
 
+function goBackFromArticle() {
+  const fromPath = history.state?.fromPath;
+
+  if (fromPath) {
+    history.back();
+    return;
+  }
+
+  showSection("about", true);
+}
+
 function initializeRoute() {
   const initialRoute = getRouteFromPath();
   const didShowRoute = showRoute(initialRoute);
@@ -313,13 +329,25 @@ window.addEventListener("popstate", () => {
   showCurrentRoute();
 });
 
+routeBack?.addEventListener("click", () => {
+  goBackFromArticle();
+});
+
 main?.addEventListener("click", (event) => {
   const link = event.target.closest("a");
 
   if (!link || link.origin !== window.location.origin) return;
 
   event.preventDefault();
-  history.pushState({}, "", link.href);
+
+  history.pushState(
+    {
+      fromPath: window.location.pathname,
+    },
+    "",
+    link.href,
+  );
+
   showCurrentRoute();
 });
 
