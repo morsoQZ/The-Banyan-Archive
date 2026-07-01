@@ -201,6 +201,16 @@ function scheduleFloatingTitleUpdate() {
   });
 }
 
+function resetMainScroll() {
+  if (!main) return;
+
+  main.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: "instant",
+  });
+}
+
 async function loadPageContent(page) {
   const src = page.dataset.pageSrc;
 
@@ -301,6 +311,7 @@ function goBackFromArticle() {
   }
 
   showSection("about", true);
+  resetMainScroll();
 }
 
 function initializeRoute() {
@@ -321,12 +332,17 @@ navItems.forEach((item) => {
     if (!target) return;
 
     event.preventDefault();
-    showSection(target, true);
+
+    if (showSection(target, true)) {
+      resetMainScroll();
+    }
   });
 });
 
 window.addEventListener("popstate", () => {
-  showCurrentRoute();
+  if (showCurrentRoute()) {
+    resetMainScroll();
+  }
 });
 
 routeBack?.addEventListener("click", () => {
@@ -349,6 +365,7 @@ main?.addEventListener("click", (event) => {
   );
 
   showCurrentRoute();
+  resetMainScroll();
 });
 
 main?.addEventListener("scroll", scheduleFloatingTitleUpdate, { passive: true });
